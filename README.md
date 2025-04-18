@@ -73,7 +73,7 @@ scanni/
 ## 📦 Installazione
 
 ```bash
-git clone https://github.com/tuonome/scAnnI.git
+git clone https://github.com/kita69/scAnnI.git
 cd scAnnI
 pip install -r requirements.txt
 python3 scAnnI.py
