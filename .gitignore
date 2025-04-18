@@ -1,0 +1,21 @@
+# Bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+env/
+venv/
+
+# IDE/editor configs
+.vscode/
+.idea/
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Reports and scans
+scans/
+*.pdf
+*.png

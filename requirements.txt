@@ -1,0 +1,4 @@
+rich>=13.3.5
+fpdf>=1.7.2
+matplotlib>=3.7.0
+requests>=2.28.2
