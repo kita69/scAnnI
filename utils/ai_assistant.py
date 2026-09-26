@@ -1,6 +1,6 @@
 import requests
 from rich.console import Console
-from utils.config_ai import AI_MODEL_DEFAULT
+from utils import config_ai
 
 console = Console()
 
@@ -28,7 +28,7 @@ Ecco i dati raccolti finora:
 
         try:
             res = requests.post("http://localhost:11434/api/generate", json={
-                "model": AI_MODEL_DEFAULT,
+                "model": config_ai.AI_MODEL_DEFAULT,
                 "prompt": prompt,
                 "stream": False
             })
@@ -38,7 +38,9 @@ Ecco i dati raccolti finora:
 
         print(f"\n🤖 AI > {reply}\n")
 
-def ask_ai(prompt, model=AI_MODEL_DEFAULT):
+def ask_ai(prompt, model=None):
+    if model is None:
+        model = config_ai.AI_MODEL_DEFAULT
     try:
         res = requests.post("http://localhost:11434/api/generate", json={
             "model": model,

@@ -24,21 +24,6 @@ session_memory = {
     "executed_exploits": []
 }
 
-def generate_exploit_list():
-    try:
-        output = subprocess.getoutput('msfconsole -q -x "show exploits; exit"')
-        lines = [line.strip() for line in output.splitlines() if "exploit/" in line and line.strip()]
-
-        with open("exploit_list.txt", "w") as f:
-            f.write("\n".join(lines))
-
-        console.print("[green]✅ File 'exploit_list.txt' generato con successo.[/green]")
-        time.sleep(1)
-        console.clear()
-
-    except Exception as e:
-        console.print(f"[red]❌ Errore durante la generazione di 'exploit_list.txt': {e}[/red]")
-
 def get_local_ip():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)

@@ -5,7 +5,7 @@ import requests
 import subprocess
 from rich import print
 from rich.console import Console
-from utils.config_ai import AI_MODEL_DEFAULT, AI_MODEL_CODE
+from utils import config_ai
 
 SCANS_DIR = "scans"
 LPORT = "8080"
@@ -103,7 +103,7 @@ def run_manual_scan(session_memory):
             "Suggerisci moduli exploit Metasploit da usare. Scrivi solo i nomi dei moduli uno per riga. In italiano."
         )
         res = requests.post("http://localhost:11434/api/generate", json={
-            "model": AI_MODEL_DEFAULT,
+            "model": config_ai.AI_MODEL_DEFAULT,
             "prompt": prompt,
             "stream": False
         })
@@ -127,7 +127,7 @@ def run_manual_scan(session_memory):
             "Suggerisci una chain di attacco completa. Scrivi in italiano."
         )
         res2 = requests.post("http://localhost:11434/api/generate", json={
-            "model": AI_MODEL_DEFAULT,
+            "model": config_ai.AI_MODEL_DEFAULT,
             "prompt": extra_prompt,
             "stream": False
         })

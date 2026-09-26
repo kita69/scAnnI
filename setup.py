@@ -7,6 +7,7 @@ setup(
     author='Kita69',
     url='https://github.com/kita69/scAnnI',
     packages=find_packages(),
+    py_modules=['scAnnI'],
     include_package_data=True,
     install_requires=[
         'rich>=13.3.5',
