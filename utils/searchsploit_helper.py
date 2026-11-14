@@ -34,7 +34,6 @@ def run_searchsploit():
         output = result.stdout
         
         if output.strip():
-            print("[grey]DEBUG output searchsploit:[/grey]\n" + output)
             print(Panel.fit(output, title="Risultati searchsploit"))
         
             path = os.path.join(latest, "searchsploit.txt")

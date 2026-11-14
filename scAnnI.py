@@ -1,9 +1,6 @@
 import os
-import sys
 import socket
-import subprocess
 from rich.console import Console
-from rich.panel import Panel
 from utils.tui import main_menu
 from utils.pentest_auto import run_pentest_auto
 from utils.manual_scan import run_manual_scan
@@ -41,10 +38,10 @@ def main():
     console.clear()
 
     while True:
-        choice = main_menu(ultimate=True, env_status=env_status)
+        choice = main_menu(env_status=env_status)
 
         if choice == "1":
-            eseguito = run_pentest_auto()
+            eseguito = run_pentest_auto(session_memory)
             if eseguito:
                 console.input("\n[green]Premi Invio per tornare al menu...[/green]")
         elif choice == "2":

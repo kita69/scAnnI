@@ -57,7 +57,7 @@ scAnnI v0.1.2025 - AI Powered Pentest Toolkit
 
     return Group(header, banner, menu_panel)
 
-def main_menu(ultimate=False, env_status=None):
+def main_menu(env_status=None):
     console.clear()
 
     with Live(render_layout(env_status), refresh_per_second=0.5, console=console):
