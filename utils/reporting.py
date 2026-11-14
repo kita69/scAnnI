@@ -7,9 +7,17 @@ import matplotlib
 matplotlib.use("Agg")  # usa il backend non-GUI
 import matplotlib.pyplot as plt
 from rich import print
+from utils import config_ai
 
 SCANS_DIR = "scans"
-MODEL = "openhermes"
+
+
+def latin1(text):
+    """Rende il testo compatibile con la codifica latin-1 usata da fpdf,
+    sostituendo i caratteri non rappresentabili (emoji, trattini lunghi, ecc.)."""
+    if text is None:
+        return ""
+    return str(text).encode("latin-1", "replace").decode("latin-1")
 
 class PDFReport(FPDF):
     def __init__(self, target_ip=""):
@@ -18,13 +26,13 @@ class PDFReport(FPDF):
 
     def header(self):
         self.set_font("Arial", "B", 12)
-        self.cell(0, 10, f"scAnnI - Report del PenTest ({self.target_ip})", 0, 1, "C")
+        self.cell(0, 10, latin1(f"scAnnI - Report del PenTest ({self.target_ip})"), 0, 1, "C")
         self.ln(5)
 
     def footer(self):
         self.set_y(-15)
         self.set_font("Arial", "I", 8)
-        self.cell(0, 10, f"Pagina {self.page_no()} | Target: {self.target_ip}", 0, 0, "C")
+        self.cell(0, 10, latin1(f"Pagina {self.page_no()} | Target: {self.target_ip}"), 0, 0, "C")
 
 def generate_port_graph(nmap_data, output_path):
     ports = []
@@ -57,7 +65,12 @@ def generate_session_report():
         return
 
     latest = os.path.join(SCANS_DIR, folders[0])
-    target_ip = folders[0].split("_")[0] if "_" in folders[0] else folders[0]
+    target_file = os.path.join(latest, "target.txt")
+    if os.path.exists(target_file):
+        with open(target_file) as f:
+            target_ip = f.read().strip() or folders[0]
+    else:
+        target_ip = folders[0]
     pdf = PDFReport(target_ip=target_ip)
     pdf.add_page()
     pdf.set_font("Arial", size=12)
@@ -66,15 +79,15 @@ def generate_session_report():
     pdf.set_font("Arial", "B", 12)
     pdf.cell(0, 10, "Sommario:", ln=True)
     pdf.set_font("Arial", size=11)
-    pdf.multi_cell(0, 8, "1. Informazioni di base\n2. Output Nmap\n3. Moduli suggeriti dalla AI\n4. Analisi tecnica finale")
+    pdf.multi_cell(0, 8, latin1("1. Informazioni di base\n2. Output Nmap\n3. Moduli suggeriti dalla AI\n4. Analisi tecnica finale"))
     pdf.ln(5)
 
     # Sezione 1 - Info base
     pdf.set_font("Arial", "B", 12)
     pdf.cell(0, 10, "1. Informazioni di base", ln=True)
     pdf.set_font("Arial", size=12)
-    pdf.cell(0, 10, f"Data: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", ln=True)
-    pdf.cell(0, 10, f"Cartella: {folders[0]}", ln=True)
+    pdf.cell(0, 10, latin1(f"Data: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"), ln=True)
+    pdf.cell(0, 10, latin1(f"Cartella: {folders[0]}"), ln=True)
     pdf.ln(5)
 
     # Sezione 2 - Output Nmap
@@ -85,7 +98,7 @@ def generate_session_report():
         pdf.set_font("Arial", "B", 12)
         pdf.cell(0, 10, "2. Output Nmap", ln=True)
         pdf.set_font("Arial", size=10)
-        pdf.multi_cell(0, 5, nmap_data)
+        pdf.multi_cell(0, 5, latin1(nmap_data))
         pdf.ln(3)
 
         # Generazione e inserimento grafico
@@ -102,7 +115,7 @@ def generate_session_report():
         pdf.set_font("Arial", "B", 12)
         pdf.cell(0, 10, "3. Moduli suggeriti dalla IA", ln=True)
         pdf.set_font("Arial", size=10)
-        pdf.multi_cell(0, 5, ai_data)
+        pdf.multi_cell(0, 5, latin1(ai_data))
         pdf.ln(5)
 
     # Sezione 4 - Analisi AI finale (extra)
@@ -118,7 +131,7 @@ def generate_session_report():
 )
 
             res = requests.post("http://localhost:11434/api/generate", json={
-                "model": MODEL,
+                "model": config_ai.AI_MODEL_DEFAULT,
                 "prompt": prompt,
                 "stream": False
             })
@@ -129,7 +142,7 @@ def generate_session_report():
         pdf.set_font("Arial", "B", 12)
         pdf.cell(0, 10, "4. Analisi AI del target", ln=True)
         pdf.set_font("Arial", size=10)
-        pdf.multi_cell(0, 5, summary)
+        pdf.multi_cell(0, 5, latin1(summary))
 
     # Salva il file
     report_path = os.path.join(latest, "report.pdf")
