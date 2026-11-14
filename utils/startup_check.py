@@ -23,10 +23,11 @@ def check_msfconsole():
     if check_command_exists("msfconsole"):
         print("[green]✅ msfconsole trovato. Generazione database exploit...[/green]")
         try:
+            from utils.exploit_utils import parse_exploit_names
             output = subprocess.getoutput('msfconsole -q -x "show exploits; exit"')
-            lines = [line.strip() for line in output.splitlines() if "exploit/" in line and line.strip()]
+            names = parse_exploit_names(output)
             with open("exploit_list.txt", "w") as f:
-                f.write("\n".join(lines))
+                f.write("\n".join(names))
             msfconsole_available = True
         except Exception as e:
             print(f"[red]❌ Errore durante l'aggiornamento del database exploit: {e}[/red]")
@@ -52,10 +53,15 @@ def check_ollama():
                 config_ai.AI_MODEL_CODE = models[0]
                 print(f"[cyan]✔️ Modello impostato: {models[0]} (default e exploit)[/cyan]")
             else:
-                choice_default = input("🔹 Seleziona il modello AI generale (numero): ").strip()
-                choice_code = input("🔸 Seleziona il modello per exploit (numero): ").strip()
-                config_ai.AI_MODEL_DEFAULT = models[int(choice_default) - 1]
-                config_ai.AI_MODEL_CODE = models[int(choice_code) - 1]
+                def choose_model(message):
+                    while True:
+                        raw = input(message).strip()
+                        if raw.isdigit() and 1 <= int(raw) <= len(models):
+                            return models[int(raw) - 1]
+                        print(f"[yellow]⚠️ Inserisci un numero tra 1 e {len(models)}.[/yellow]")
+
+                config_ai.AI_MODEL_DEFAULT = choose_model("🔹 Seleziona il modello AI generale (numero): ")
+                config_ai.AI_MODEL_CODE = choose_model("🔸 Seleziona il modello per exploit (numero): ")
                 print("[cyan]✔️ Modelli configurati correttamente.[/cyan]")
 
             ollama_available = True
