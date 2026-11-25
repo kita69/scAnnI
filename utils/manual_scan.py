@@ -82,10 +82,22 @@ def run_manual_scan(session_memory):
     os.makedirs(base_dir, exist_ok=True)
     nmap_output_file = os.path.join(base_dir, "nmap_scan.txt")
 
+    # Salva il target per il report
+    with open(os.path.join(base_dir, "target.txt"), "w") as f:
+        f.write(target)
+
     # Scelta tipo scansione
     nmap_cmd = build_nmap_command(target)
     print("\n[cyan]🔍 Scansione Nmap in corso...[/cyan]")
-    subprocess.run(nmap_cmd + [nmap_output_file, target])
+    try:
+        subprocess.run(nmap_cmd + [nmap_output_file, target])
+    except FileNotFoundError:
+        print("[red]❌ Nmap non trovato. Installalo per eseguire la scansione.[/red]")
+        return
+
+    if not os.path.exists(nmap_output_file):
+        print("[red]❌ Scansione Nmap fallita: nessun output generato.[/red]")
+        return
 
     with open(nmap_output_file, "r") as f:
         nmap_data = f.read()
@@ -147,13 +159,12 @@ def run_manual_scan(session_memory):
         script_dir = os.path.join(base_dir, "scripts")
         os.makedirs(script_dir, exist_ok=True)
 
+        from utils.exploit_utils import generate_exploit_list, load_valid_exploits
         if not os.path.exists("exploit_list.txt"):
             console.print("[yellow]⚠️ File 'exploit_list.txt' non trovato. Generazione automatica in corso...[/yellow]")
-            from utils.exploit_utils import generate_exploit_list
             generate_exploit_list()
 
-        with open("exploit_list.txt") as f:
-            valid_exploits = set(line.strip().split()[0] for line in f if "exploit/" in line)
+        valid_exploits = load_valid_exploits()
 
         modules = [line.strip() for line in response_text.splitlines()
                    if line.strip().startswith("exploit/") and line.strip() in valid_exploits]
