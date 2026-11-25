@@ -4,7 +4,11 @@ from rich.console import Console
 
 console = Console()
 
-FLUXION_PATH = "./fluxion/fluxion.sh"
+# Ancorato alla root del progetto, così non dipende dalla directory di lavoro
+FLUXION_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "fluxion", "fluxion.sh",
+)
 
 def tools_menu():
     while True:

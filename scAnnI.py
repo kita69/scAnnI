@@ -55,7 +55,10 @@ def main():
             console.input("\n[green]Premi Invio per tornare al menu...[/green]")
         elif choice == "6":
             console.print("[cyan]📝 Generazione del report PDF in corso...[/cyan]")
-            generate_session_report()
+            try:
+                generate_session_report()
+            except Exception as e:
+                console.print(f"[red]❌ Errore generazione report PDF:[/red] {e}")
             console.input("\n[green]Premi Invio per tornare al menu...[/green]")
         elif choice == "7":
             console.print("[cyan]📄 Generazione del file exploit_list.txt in corso...[/cyan]")
@@ -69,4 +72,7 @@ def main():
             break
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        console.print("\n[cyan]👋 Interrotto dall'utente. Uscita...[/cyan]")
