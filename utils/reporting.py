@@ -48,14 +48,19 @@ def generate_port_graph(nmap_data, output_path):
     if not ports:
         return False
 
-    plt.figure(figsize=(8, 4))
-    plt.bar(ports, [1]*len(ports), tick_label=services)
-    plt.title("Porte Aperte Rilevate")
-    plt.xlabel("Servizi")
-    plt.ylabel("Stato")
-    plt.tight_layout()
-    plt.savefig(output_path)
-    plt.close()
+    fig = plt.figure(figsize=(8, 4))
+    try:
+        plt.bar(ports, [1]*len(ports), tick_label=services)
+        plt.title("Porte Aperte Rilevate")
+        plt.xlabel("Servizi")
+        plt.ylabel("Stato")
+        plt.tight_layout()
+        plt.savefig(output_path)
+    except Exception as e:
+        print(f"[yellow]⚠️ Impossibile generare il grafico delle porte: {e}[/yellow]")
+        return False
+    finally:
+        plt.close(fig)
     return True
 
 def generate_session_report():
@@ -67,7 +72,7 @@ def generate_session_report():
     latest = os.path.join(SCANS_DIR, folders[0])
     target_file = os.path.join(latest, "target.txt")
     if os.path.exists(target_file):
-        with open(target_file) as f:
+        with open(target_file, encoding="utf-8", errors="replace") as f:
             target_ip = f.read().strip() or folders[0]
     else:
         target_ip = folders[0]
@@ -93,7 +98,7 @@ def generate_session_report():
     # Sezione 2 - Output Nmap
     nmap_file = os.path.join(latest, "nmap_scan.txt")
     if os.path.exists(nmap_file):
-        with open(nmap_file, "r") as f:
+        with open(nmap_file, "r", encoding="utf-8", errors="replace") as f:
             nmap_data = f.read()
         pdf.set_font("Arial", "B", 12)
         pdf.cell(0, 10, "2. Output Nmap", ln=True)
@@ -110,7 +115,7 @@ def generate_session_report():
     # Sezione 3 - Risposta IA
     ai_file = os.path.join(latest, "ollama_response.txt")
     if os.path.exists(ai_file):
-        with open(ai_file, "r") as f:
+        with open(ai_file, "r", encoding="utf-8", errors="replace") as f:
             ai_data = f.read()
         pdf.set_font("Arial", "B", 12)
         pdf.cell(0, 10, "3. Moduli suggeriti dalla IA", ln=True)
@@ -121,7 +126,7 @@ def generate_session_report():
     # Sezione 4 - Analisi AI finale (extra)
     if os.path.exists(nmap_file):
         try:
-            with open(nmap_file, "r") as f:
+            with open(nmap_file, "r", encoding="utf-8", errors="replace") as f:
                 raw_nmap = f.read()
             prompt = (
     "Analizza il seguente output Nmap in modo dettagliato e professionale. "
@@ -130,11 +135,11 @@ def generate_session_report():
     f"{raw_nmap}"
 )
 
-            res = requests.post("http://localhost:11434/api/generate", json={
+            res = requests.post(config_ai.OLLAMA_GENERATE_URL, json={
                 "model": config_ai.AI_MODEL_DEFAULT,
                 "prompt": prompt,
                 "stream": False
-            })
+            }, timeout=config_ai.OLLAMA_TIMEOUT)
             summary = res.json().get("response", "[Nessuna risposta dalla AI]")
         except Exception as e:
             summary = f"[Errore durante l'analisi AI]: {e}"

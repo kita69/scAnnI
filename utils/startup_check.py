@@ -13,24 +13,19 @@ def check_command_exists(command):
 
 def is_ollama_api_active():
     try:
-        response = requests.get("http://localhost:11434")
+        response = requests.get(config_ai.OLLAMA_URL, timeout=5)
         return response.status_code == 200
-    except:
+    except requests.RequestException:
         return False
 
 def check_msfconsole():
     global msfconsole_available
     if check_command_exists("msfconsole"):
         print("[green]✅ msfconsole trovato. Generazione database exploit...[/green]")
-        try:
-            from utils.exploit_utils import parse_exploit_names
-            output = subprocess.getoutput('msfconsole -q -x "show exploits; exit"')
-            names = parse_exploit_names(output)
-            with open("exploit_list.txt", "w") as f:
-                f.write("\n".join(names))
+        from utils.exploit_utils import generate_exploit_list, exploit_list_exists
+        # Non azzera un elenco già valido se la rigenerazione fallisce
+        if generate_exploit_list() or exploit_list_exists():
             msfconsole_available = True
-        except Exception as e:
-            print(f"[red]❌ Errore durante l'aggiornamento del database exploit: {e}[/red]")
     else:
         print("[yellow]⚠️ msfconsole non trovato. L'esecuzione degli exploit automatici e manuali sarà disabilitata.[/yellow]")
 

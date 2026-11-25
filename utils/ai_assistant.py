@@ -27,11 +27,11 @@ Ecco i dati raccolti finora:
         prompt = f"{context}\n\nDomanda: {user_input}\nRisposta in italiano tecnico:"
 
         try:
-            res = requests.post("http://localhost:11434/api/generate", json={
+            res = requests.post(config_ai.OLLAMA_GENERATE_URL, json={
                 "model": config_ai.AI_MODEL_DEFAULT,
                 "prompt": prompt,
                 "stream": False
-            })
+            }, timeout=config_ai.OLLAMA_TIMEOUT)
             reply = res.json().get("response", "[Nessuna risposta dalla AI]")
         except Exception as e:
             reply = f"❌ Errore: {e}"
@@ -42,11 +42,11 @@ def ask_ai(prompt, model=None):
     if model is None:
         model = config_ai.AI_MODEL_DEFAULT
     try:
-        res = requests.post("http://localhost:11434/api/generate", json={
+        res = requests.post(config_ai.OLLAMA_GENERATE_URL, json={
             "model": model,
             "prompt": prompt,
             "stream": False
-        })
+        }, timeout=config_ai.OLLAMA_TIMEOUT)
         return res.json().get("response", "[Nessuna risposta dalla AI]")
     except Exception as e:
         return f"[Errore AI]: {e}"
